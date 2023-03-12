@@ -15,7 +15,7 @@ public class UserBL {
             UserDac UserDac = new UserDac();  
             List<User> User = new ArrayList<User>();
             ResultSet rs = UserDac.aaGetUserbyuser(string);
-            while(rs.next())    {
+            while(rs.next()){
                 User p = new User(rs.getInt("id"), rs.getString("nombre"), rs.getString("apellido"), rs.getString("usuario"),  rs.getString("contrasena"));
                 User.add(p);
             }

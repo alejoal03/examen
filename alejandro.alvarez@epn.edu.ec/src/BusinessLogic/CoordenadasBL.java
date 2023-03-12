@@ -16,8 +16,8 @@ public class CoordenadasBL {
             List<Coordenadas> Coordenadas = new ArrayList<Coordenadas>();
             ResultSet rs = UserDac.aaGetCoordenadasByInt(coord);
             while(rs.next())    {
-                Coordenadas p = new Coordenadas(rs.getInt("capacidad"), rs.getString("geolocalizacion"), rs.getString("arsenal"));
-                Coordenadas.add(p);
+                Coordenadas a = new Coordenadas(rs.getInt("Capacidad"), rs.getString("Geolocalizacion"), rs.getString("TipoArsenal"));
+                Coordenadas.add(a);
             }
             return Coordenadas;
         } 

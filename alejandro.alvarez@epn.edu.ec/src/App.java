@@ -1,5 +1,6 @@
 import BusinessLogic.CoordenadasBL;
 import BusinessLogic.UserBL;
+import BusinessLogic.Entities.Coordenadas;
 import BusinessLogic.Entities.User;
 import DataAccess.UserDac;
 import Framework.*;
@@ -7,22 +8,54 @@ import java.util.Scanner;
 import Encrypter.*;
 
 
-
-
 public class App{
   static Scanner scanner = new Scanner(System.in);
+
+
+  /**
+     * Metodo para limpiar pantalla
+     */
+    public static void clearScreen() {  
+        System.out.print("\033[H\033[2J");
+        System.out.flush();   
+    } 
+
+    //Metodo para limpiar pantalla
+    public static void aaMostrarDatos(String developer, String ced, int capacidad, int coordenadaT, String coordenadaSec) {  
+        System.out.println("Developer-Nombre:    "+developer);
+        System.out.println("Developer-Cedula:    "+ced);
+        System.out.println("Capacidad Belica:    "+capacidad);
+        System.out.println("Coordenada-Total:    "+coordenadaT);
+        System.out.println("Coordenada-SecCarga: "+coordenadaSec);
+    } 
+
+  public static void aaMostrarAnimacionDePorcentaje() {
+    for (int i = 1; i <= 100; i++) {
+        System.out.print("\r" + i + "%  | ");
+        try {
+            Thread.sleep(25); // espera 50 milisegundos antes de continuar
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            }
+        }   
+    }
+
+
+
         private static void aaMostrarCoordenadas(String contrasena){
-
-            try {
-                CoordenadasBL Coordenadas =  new CoordenadasBL();
-                System.out.println("Cap |  Geo  |  TipoArsenal" );
-                for (User p : Coordenadas.aaGetCoordenadasByInt(coord)) {
-                    System.out.println("ID:" + p.getId());
-                    
-                }
-            } catch (Exception e) { } 
-            for(int i=contrasena.length(); i<0; i--){
-
+            for(int i=contrasena.length()-1; i>=0; i--){
+                int coord = Character.getNumericValue(contrasena.charAt(i));
+                try {
+                    CoordenadasBL coorde =  new CoordenadasBL();
+                    System.out.println("       Cap  |  Geo  |  TipoArsenal" );
+                    for (Coordenadas a : coorde.aaGetCoordenadasByInt(coord)) {
+                        aaMostrarAnimacionDePorcentaje();
+                        System.out.print(a.getAaCapacidad()+"   |  ");
+                        System.out.print(a.getAaGeolocalizacion()+" |       ");
+                        System.out.println(a.getAaArsenal());      
+                        System.out.println("----------------------------------");              
+                    }
+                } catch (Exception e) { } 
             }            
         }
 
@@ -58,6 +91,15 @@ public class App{
 
             if ((aaUsuario.equals(aaUsuario) && aaContrasena.equals(aaContrasena2))) {
                 System.out.println("Login successful!");
+                clearScreen();
+                aaMostrarCoordenadas(aaContrasena);
+                try {
+                    Thread.sleep(2000); // espera 50 milisegundos antes de continuar
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                clearScreen(); 
+                aaMostrarDatos(APP.AANOMBRE_COMPLETO, APP.AACEDULA, i, i, aaContrasena);
                 break;
             } else {
                 System.out.println("Usuario o contraseña incorrecta, vuelve a intentarlo!");
@@ -76,7 +118,7 @@ public class App{
         //UserDac.addUsuarios("Alejandro", "Alvarez","alejandro.alvarez@epn.edu.ec","0504042375");
         //UserDac.addUsuarios("Juanito", "Alimaña","juanito.alimana@epn.edu.ec","1705032371");
         //UserDac.addUsuarios("Patricio", "Paccha","profe","1234");
-
+        clearScreen();
         aaLogin();
     };     
 }

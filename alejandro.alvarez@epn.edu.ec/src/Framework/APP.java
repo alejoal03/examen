@@ -8,6 +8,12 @@ public enum APP {
     GLOBAL;
     public final  String  DB_NAME           = "DB_NAME";
     public final  String  DB_PATH           = "DB_PATH";  
+
+    //Constantes con informacion del developer
+    public static final String AANOMBRE_COMPLETO="Alejandro Sebastian Alvarez Zambrano";
+    public static final String AACEDULA="0504042375";
+
+
     //Constantes con definicion  
     private final String  EXCEPTION_UNDEFINED;
     private final String  EXCEPTION_UNDEFINED_CLASS;
