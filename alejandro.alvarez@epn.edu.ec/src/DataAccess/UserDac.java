@@ -89,4 +89,41 @@ public class UserDac extends SQLiteDataHelper {
         }
     }
 
+    public static void addCoordenadas(int i, String geolocalizacion, String tipoArsenal, int id) throws Exception {
+        Connection conexion = null;
+        PreparedStatement statement = null;
+        try {    
+            // 1. Conectar con la base de datos
+            conexion = DriverManager.getConnection("jdbc:sqlite:data\\DBTest.db");
+            // 2. Preparar la sentencia SQL
+            String sql = "INSERT INTO COORDENADAS_PERSONALES (capacidad, geolocalizacion, tipoArsenal, id) VALUES (?, ?, ?, ?)";
+            statement = conexion.prepareStatement(sql);
+    
+            // 3. Asignar los valores de los parámetros
+            statement.setLong(1, i);
+            statement.setString(2, geolocalizacion);
+            statement.setString(3, tipoArsenal);
+            statement.setLong(4, id);
+    
+            // 4. Ejecutar la sentencia SQL
+            statement.executeUpdate();
+    
+            // 5. Cerrar la conexión
+            conexion.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (statement != null) {
+                    statement.close();
+                }
+                if (conexion != null) {
+                    conexion.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 }

@@ -4,6 +4,9 @@ import BusinessLogic.Entities.Coordenadas;
 import BusinessLogic.Entities.User;
 import DataAccess.UserDac;
 import Framework.*;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 import Encrypter.*;
 
@@ -21,19 +24,34 @@ public class App{
     } 
 
     //Metodo para limpiar pantalla
-    public static void aaMostrarDatos(String developer, String ced, int capacidad, int coordenadaT, String coordenadaSec) {  
+    public static void aaMostrarDatos(String developer, String ced, int capacidad, int coordenadaT, ArrayList<Integer> aaRepetidos) {  
         System.out.println("Developer-Nombre:    "+developer);
         System.out.println("Developer-Cedula:    "+ced);
         System.out.println("Capacidad Belica:    "+capacidad);
         System.out.println("Coordenada-Total:    "+coordenadaT);
-        System.out.println("Coordenada-SecCarga: "+coordenadaSec);
+        System.out.println("Coordenada-SecCarga: "+aaRepetidos);
     } 
+
+    //envia informacion a la base de datos especifica del developer
+    private static void aaCrearDB(String contrasena){
+        for(int i=contrasena.length()-1; i>=0; i--){
+            int coord = Character.getNumericValue(contrasena.charAt(i));
+            try {
+                CoordenadasBL coorde =  new CoordenadasBL();
+                for (Coordenadas a : coorde.aaGetCoordenadasByInt(coord)) {
+                    UserDac.addCoordenadas(a.getAaCapacidad(), a.getAaGeolocalizacion(), a.getAaArsenal(), 1);                 
+                }
+            } catch (Exception e) { } 
+            clearScreen();
+        }            
+    }
+
 
   public static void aaMostrarAnimacionDePorcentaje() {
     for (int i = 1; i <= 100; i++) {
         System.out.print("\r" + i + "%  | ");
         try {
-            Thread.sleep(25); // espera 50 milisegundos antes de continuar
+            Thread.sleep(1); // espera 50 milisegundos antes de continuar
         } catch (InterruptedException e) {
             e.printStackTrace();
             }
@@ -41,25 +59,34 @@ public class App{
     }
 
 
-
-        private static void aaMostrarCoordenadas(String contrasena){
-            for(int i=contrasena.length()-1; i>=0; i--){
+        //muestra las coordenadas de acuerdo a la cedeula sin repeticion
+        private static void aaMostrarCoordenadas(String contrasena, ArrayList<Integer> aaCapacidadBelica, ArrayList<Integer> aaCoordTotal, ArrayList<Integer> aaRepetidos){
+            int aaCoord=0;
+            int aaCapBel=0;
+            for(int i=0; i<contrasena.length(); i++){
                 int coord = Character.getNumericValue(contrasena.charAt(i));
-                try {
-                    CoordenadasBL coorde =  new CoordenadasBL();
-                    System.out.println("       Cap  |  Geo  |  TipoArsenal" );
-                    for (Coordenadas a : coorde.aaGetCoordenadasByInt(coord)) {
-                        aaMostrarAnimacionDePorcentaje();
-                        System.out.print(a.getAaCapacidad()+"   |  ");
-                        System.out.print(a.getAaGeolocalizacion()+" |       ");
-                        System.out.println(a.getAaArsenal());      
-                        System.out.println("----------------------------------");              
-                    }
-                } catch (Exception e) { } 
-            }            
+                if (!aaRepetidos.contains(coord)){
+                    try {
+                        aaRepetidos.add(coord);
+                        CoordenadasBL coorde =  new CoordenadasBL();
+                        System.out.println("       Cap  |  Geo  |  TipoArsenal" );
+                        for (Coordenadas a : coorde.aaGetCoordenadasByInt(coord)) {
+                            aaMostrarAnimacionDePorcentaje();
+                            aaCoord++;
+                            aaCapBel=aaCapBel+a.getAaCapacidad();
+                            System.out.print(a.getAaCapacidad()+"   |  ");
+                            System.out.print(a.getAaGeolocalizacion()+" |       ");
+                            System.out.println(a.getAaArsenal());      
+                            System.out.println("----------------------------------");            
+                        }
+                    } catch (Exception e) { } 
+                }
+            }
+            aaCapacidadBelica.add(aaCapBel);  
+            aaCoordTotal.add(aaCoord);            
         }
 
-
+        //metodo para logearse de acuerdo a los usuarios que hay en base de datos
         private static void aaLogin(){
         String aaContrasena2=null;        
         int i = 0;
@@ -91,15 +118,19 @@ public class App{
 
             if ((aaUsuario.equals(aaUsuario) && aaContrasena.equals(aaContrasena2))) {
                 System.out.println("Login successful!");
+                ArrayList<Integer> aaRepetidos = new ArrayList<Integer>();
+                ArrayList<Integer> aaCapacidadBelica = new ArrayList<Integer>();
+                ArrayList<Integer> aaCoordTotal = new ArrayList<Integer>();
                 clearScreen();
-                aaMostrarCoordenadas(aaContrasena);
+                aaMostrarCoordenadas(APP.AACEDULA, aaCapacidadBelica, aaCoordTotal, aaRepetidos);
                 try {
-                    Thread.sleep(2000); // espera 50 milisegundos antes de continuar
+                    Thread.sleep(2000); // espera 2 segundos antes de continuar
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
                 clearScreen(); 
-                aaMostrarDatos(APP.AANOMBRE_COMPLETO, APP.AACEDULA, i, i, aaContrasena);
+                aaCrearDB(APP.AACEDULA);
+                aaMostrarDatos(APP.AANOMBRE_COMPLETO, APP.AACEDULA, aaCapacidadBelica.get(0), aaCoordTotal.get(0), aaRepetidos );
                 break;
             } else {
                 System.out.println("Usuario o contraseña incorrecta, vuelve a intentarlo!");
@@ -114,11 +145,15 @@ public class App{
         AppConfiguration.load("src/config.properties"); 
         System.out.println(AppConfiguration.getDBName());
         System.out.println(AppConfiguration.getDBPathConnection());
+
+        //DATOS DE USUARIOS AÑADIDOS, ESTAN COMENTADOS PORQUE YA ESTAN AÑADIDOS
         
         //UserDac.addUsuarios("Alejandro", "Alvarez","alejandro.alvarez@epn.edu.ec","0504042375");
         //UserDac.addUsuarios("Juanito", "Alimaña","juanito.alimana@epn.edu.ec","1705032371");
         //UserDac.addUsuarios("Patricio", "Paccha","profe","1234");
         clearScreen();
+
+        //metodo de logeo, si se logea realiza el demas procedimiento
         aaLogin();
     };     
 }
